@@ -19,7 +19,7 @@ optuna==3.6.1
 #shap==0.45.1
 
 # Embeddings
-#sentence-transformers==3.0.1
+sentence-transformers>=2.2.2
 
 # Scheduling
 APScheduler==3.10.4
