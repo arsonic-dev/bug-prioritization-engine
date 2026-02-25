@@ -1,0 +1,73 @@
+# ── Environment ────────────────────────────────────────────
+.env
+*.env
+
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+wheels/
+
+# ── Virtual environments ────────────────────────────────────
+.venv/
+venv/
+ENV/
+env/
+
+# ── Model artefacts (large binaries — use DVC or cloud storage) ──
+models/artifacts/*.joblib
+models/artifacts/*.json
+# Keep the directory itself
+!models/artifacts/.gitkeep
+
+# ── Data ────────────────────────────────────────────────────
+data/raw/
+data/processed/
+*.csv
+*.parquet
+
+# ── Testing / Coverage ──────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# ── IDE ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Logs ────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Docker ──────────────────────────────────────────────────
+#*.dockerignore
+
+# ── MLflow ──────────────────────────────────────────────────
+mlruns/
+mlflow.db
+
+# ── Jupyter ─────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
