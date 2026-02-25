@@ -27,7 +27,7 @@ os.environ.setdefault("JIRA_PROJECT_KEY", "TEST")
 os.environ.setdefault("RETRAIN_API_KEY", "test-key")
 os.environ.setdefault("MODEL_PATH", "/tmp/test_models")
 
-from data.preprocessor import BugFeatureEngineer, SEVERITY_CLASSES  # noqa: E402
+from bug_prioritization_engine.data.preprocessor import BugFeatureEngineer, SEVERITY_CLASSES  # noqa: E402
 
 
 def _make_df(n: int = 60) -> pd.DataFrame:

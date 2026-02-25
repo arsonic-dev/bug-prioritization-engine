@@ -1,0 +1,57 @@
+{
+  "model_version": "1771870577",
+  "trained_at": "2026-02-23T18:16:17.583207+00:00",
+  "feature_count": 103,
+  "classifier": {
+    "f1_macro": 0.2533333333333333,
+    "f1_per_class": {
+      "Highest": 0.0,
+      "High": 0.6666666666666666,
+      "Medium": 0.6,
+      "Low": 0.0,
+      "Lowest": 0.0
+    },
+    "precision_per_class": {
+      "Highest": 0.0,
+      "High": 0.6666666666666666,
+      "Medium": 0.42857142857142855,
+      "Low": 0.0,
+      "Lowest": 0.0
+    },
+    "recall_per_class": {
+      "Highest": 0.0,
+      "High": 0.6666666666666666,
+      "Medium": 1.0,
+      "Low": 0.0,
+      "Lowest": 0.0
+    },
+    "best_params": {
+      "n_estimators": 527,
+      "max_depth": 3,
+      "learning_rate": 0.2808892929639364,
+      "subsample": 0.9994636029283407,
+      "colsample_bytree": 0.5136838498519677,
+      "min_child_weight": 6,
+      "gamma": 1.0286289154223667,
+      "reg_alpha": 0.9485653653310819,
+      "reg_lambda": 1.2626828430545503
+    },
+    "cv_f1_mean": 0.10315151515151515,
+    "cv_f1_std": 0.04085118235855392
+  },
+  "regressor": {
+    "rmse": 0.0,
+    "mae": 0.0,
+    "r2": 1.0,
+    "best_params": {
+      "n_estimators": 287,
+      "max_depth": 10,
+      "learning_rate": 0.1205712628744377,
+      "subsample": 0.8394633936788146,
+      "colsample_bytree": 0.5780093202212182,
+      "min_child_weight": 2,
+      "reg_alpha": 0.11616722433639892,
+      "reg_lambda": 2.665440364437338
+    }
+  }
+}
