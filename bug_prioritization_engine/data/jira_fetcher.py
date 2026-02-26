@@ -254,7 +254,9 @@ class JiraFetcher:
                 url = f"{self._url}/rest/api/3/search/jql"
 
                 payload = {
-                    "jql": jql,
+                    "jql": {
+                        "query": jql
+                    },
                     "startAt": start,
                     "maxResults": size,
                     "fields": FIELDS_TO_FETCH,
