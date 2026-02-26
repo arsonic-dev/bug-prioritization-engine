@@ -242,57 +242,56 @@ class JiraFetcher:
     # ------------------------------------------------------------------
 
     def _paginate(self, jql: str, total_limit: int) -> list[Any]:
-    """Paginate through Jira search results using REST API v3."""
+        """Paginate through Jira search results using REST API v3."""
 
-    issues: list[Any] = []
-    start_at = 0
+        issues: list[Any] = []
+        start_at = 0
 
-    while len(issues) < total_limit:
-        batch_size = min(_MAX_RESULTS_PER_PAGE, total_limit - len(issues))
+        while len(issues) < total_limit:
+            batch_size = min(_MAX_RESULTS_PER_PAGE, total_limit - len(issues))
 
-        def _search(start=start_at, size=batch_size):  # noqa: ANN001
-            url = f"{self._url}/rest/api/3/search/jql"
+            def _search(start=start_at, size=batch_size):
+                url = f"{self._url}/rest/api/3/search/jql"
 
-            payload = {
-                "jql": jql,
-                "startAt": start,
-                "maxResults": size,
-                "fields": FIELDS_TO_FETCH,
-            }
+                payload = {
+                    "jql": jql,
+                    "startAt": start,
+                    "maxResults": size,
+                    "fields": FIELDS_TO_FETCH,
+                }
 
-            response = requests.post(
-                url,
-                json=payload,
-                auth=(self._email, self._api_token),
-                headers={"Accept": "application/json"},
-                timeout=30,
-            )
-
-            if response.status_code != 200:
-                raise JIRAError(
-                    status_code=response.status_code,
-                    text=response.text,
-                    response=response,
+                response = requests.post(
+                    url,
+                    json=payload,
+                    auth=(self._email, self._api_token),
+                    headers={"Accept": "application/json"},
+                    timeout=30,
                 )
 
-            data = response.json()
-            return data.get("issues", [])
+                if response.status_code != 200:
+                    raise JIRAError(
+                        status_code=response.status_code,
+                        text=response.text,
+                        response=response,
+                    )
 
-        page = self._fetch_with_retry(_search)
+                data = response.json()
+                return data.get("issues", [])
 
-        if not page:
-            logger.debug("Empty page at startAt=%d — stopping pagination", start_at)
-            break
+            page = self._fetch_with_retry(_search)
 
-        issues.extend(page)
-        logger.debug("Page fetched: %d issues (total so far: %d)", len(page), len(issues))
+            if not page:
+                logger.debug("Empty page at startAt=%d — stopping pagination", start_at)
+                break
 
-        if len(page) < batch_size:
-            break
+            issues.extend(page)
 
-        start_at += len(page)
+            if len(page) < batch_size:
+                break
 
-    return issues
+            start_at += len(page)
+
+        return issues
 
     # ------------------------------------------------------------------
     # Retry wrapper
