@@ -6,7 +6,7 @@ retry logic, and returns a tidy pandas DataFrame ready for feature engineering.
 """
 
 from __future__ import annotations
-
+import requests
 import logging
 import time
 from datetime import datetime, timezone
@@ -242,46 +242,57 @@ class JiraFetcher:
     # ------------------------------------------------------------------
 
     def _paginate(self, jql: str, total_limit: int) -> list[Any]:
-        """Paginate through Jira search results, respecting rate limits.
+    """Paginate through Jira search results using REST API v3."""
 
-        Args:
-            jql: JQL query string.
-            total_limit: Maximum total issues to return.
+    issues: list[Any] = []
+    start_at = 0
 
-        Returns:
-            Flat list of Jira issue objects.
-        """
-        issues: list[Any] = []
-        start_at = 0
+    while len(issues) < total_limit:
+        batch_size = min(_MAX_RESULTS_PER_PAGE, total_limit - len(issues))
 
-        while len(issues) < total_limit:
-            batch_size = min(_MAX_RESULTS_PER_PAGE, total_limit - len(issues))
+        def _search(start=start_at, size=batch_size):  # noqa: ANN001
+            url = f"{self._url}/rest/api/3/search/jql"
 
-            def _search(start=start_at, size=batch_size):  # noqa: ANN001
-                return self.client.search_issues(
-                    jql_str=jql,
-                    startAt=start,
-                    maxResults=size,
-                    fields=",".join(FIELDS_TO_FETCH),
-                    json_result=False,
+            payload = {
+                "jql": jql,
+                "startAt": start,
+                "maxResults": size,
+                "fields": FIELDS_TO_FETCH,
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                auth=(self._email, self._api_token),
+                headers={"Accept": "application/json"},
+                timeout=30,
+            )
+
+            if response.status_code != 200:
+                raise JIRAError(
+                    status_code=response.status_code,
+                    text=response.text,
+                    response=response,
                 )
 
-            page = self._fetch_with_retry(_search)
+            data = response.json()
+            return data.get("issues", [])
 
-            if not page:
-                logger.debug("Empty page at startAt=%d — stopping pagination", start_at)
-                break
+        page = self._fetch_with_retry(_search)
 
-            issues.extend(page)
-            logger.debug("Page fetched: %d issues (total so far: %d)", len(page), len(issues))
+        if not page:
+            logger.debug("Empty page at startAt=%d — stopping pagination", start_at)
+            break
 
-            if len(page) < batch_size:
-                # We've consumed all available results
-                break
+        issues.extend(page)
+        logger.debug("Page fetched: %d issues (total so far: %d)", len(page), len(issues))
 
-            start_at += len(page)
+        if len(page) < batch_size:
+            break
 
-        return issues
+        start_at += len(page)
+
+    return issues
 
     # ------------------------------------------------------------------
     # Retry wrapper
@@ -381,7 +392,7 @@ class JiraFetcher:
         Returns:
             Dictionary mapping column names to values.
         """
-        f = issue.fields  # shorthand
+        f = issue["fields"]  # shorthand
 
         # --- Text
         summary: str = getattr(f, "summary", "") or ""
@@ -431,7 +442,7 @@ class JiraFetcher:
         story_points: float | None = getattr(f, "customfield_10016", None)
 
         return {
-            "jira_key": issue.key,
+            "jira_key": issue["key"],
             "summary": summary,
             "description": description,
             "priority_name": priority_name,
